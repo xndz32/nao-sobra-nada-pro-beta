@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1a0f35">
+<title>A Heloisa gosta?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  @property --ang {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  :root {
+    --noite: #1a0f35;
+    --card: #241447;
+    --rosa: #ff3d81;
+    --pessego: #ff9a62;
+    --menta: #5cf2c0;
+    --lilas: #b69cff;
+    --texto: #fff3fa;
+    --suave: #b9a9d9;
+    --fonte: "Fredoka", ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+    --cine: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: var(--noite);
+    color: var(--texto);
+    font-family: var(--fonte);
+    overflow-x: hidden;
+  }
+
+  /* ================= FUNDO ANIMADO ================= */
+  .fundo {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: .55;
+    animation: flutuar 18s ease-in-out infinite alternate;
+  }
+  .b1 { width: 55vmax; height: 55vmax; left: -15vmax; top: -15vmax; background: #6a2cff; }
+  .b2 { width: 45vmax; height: 45vmax; right: -12vmax; bottom: -10vmax; background: #ff3d81; animation-delay: -6s; }
+  .b3 { width: 35vmax; height: 35vmax; left: 30%; top: 40%; background: #ff9a62; opacity: .28; animation-delay: -11s; }
+
+  @keyframes flutuar {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(6vmax, -5vmax) scale(1.18); }
+  }
+
+  .fundo i {
+    position: absolute;
+    bottom: -40px;
+    font-style: normal;
+    animation: subir linear infinite;
+  }
+
+  @keyframes subir {
+    0%   { transform: translateY(0) rotate(0deg); }
+    50%  { transform: translateY(-60vh) rotate(18deg) translateX(14px); }
+    100% { transform: translateY(-125vh) rotate(-12deg); }
+  }
+
+  /* ================= CARD ================= */
+  .janela {
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+    width: min(100%, 460px);
+    padding: 18px 20px 24px;
+    background: var(--card);
+    border-radius: 30px;
+    animation: entrada .9s cubic-bezier(.2, 1.3, .4, 1) backwards;
+  }
+
+  .janela::before,
+  .janela::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    z-index: -1;
+    border-radius: 33px;
+    background: conic-gradient(from var(--ang), var(--rosa), var(--pessego), var(--menta), var(--lilas), var(--rosa));
+    animation: girar 6s linear infinite;
+  }
+  .janela::after {
+    z-index: -2;
+    filter: blur(22px);
+    opacity: .55;
+  }
+
+  @keyframes girar { to { --ang: 360deg; } }
+
+  @keyframes entrada {
+    from { opacity: 0; transform: translateY(40px) scale(.9) rotate(-2deg); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ================= ABAS ================= */
+  .abas {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 5px;
+    margin-bottom: 18px;
+    background: rgba(255, 255, 255, .07);
+    border-radius: 18px;
+  }
+
+  .indicador {
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 5px;
+    width: calc((100% - 10px) / 3);
+    background: linear-gradient(135deg, var(--rosa), var(--pessego));
+    border-radius: 14px;
+    transition: transform .5s cubic-bezier(.3, 1.5, .5, 1);
+  }
+
+  .aba {
+    position: relative;
+    z-index: 1;
+    padding: 11px 4px;
+    font: 600 15px var(--fonte);
+    color: var(--suave);
+    background: none;
+    border: 0;
+    border-radius: 14px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: color .3s;
+  }
+  .aba[aria-selected="true"] { color: var(--noite); }
+
+  .ponto {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 6px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    vertical-align: middle;
+    transition: background .3s, border-color .3s, transform .3s;
+  }
+  .ponto.certo  { background: var(--menta); border-color: var(--menta); transform: scale(1.25); }
+  .ponto.errado { background: var(--rosa);  border-color: var(--rosa);  transform: scale(1.25); }
+
+  /* ================= PAINEL DA PERGUNTA ================= */
+  .painel { text-align: center; }
+  .painel[hidden] { display: none; }
+
+  .coracao {
+    display: grid;
+    place-items: center;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 6px;
+    font-size: 68px;
+    line-height: 1;
+    user-select: none;
+  }
+  .coracao span {
+    display: block;
+    animation: bater 1.3s ease-in-out infinite;
+    filter: drop-shadow(0 6px 18px rgba(255, 61, 129, .55));
+  }
+
+  @keyframes bater {
+    0%, 100% { transform: scale(1); }
+    15%      { transform: scale(1.14); }
+    30%      { transform: scale(1); }
+    45%      { transform: scale(1.1); }
+    60%      { transform: scale(1); }
+  }
+
+  h1 {
+    min-height: 2.3em;
+    display: grid;
+    place-items: center;
+    margin-bottom: 16px;
+    font: 600 clamp(25px, 7vw, 31px)/1.15 var(--fonte);
+    text-wrap: balance;
+  }
+
+  .linha {
+    display: flex;
+    gap: 8px;
+  }
+
+  .campo {
+    flex: 1;
+    min-width: 0;
+    padding: 15px 16px;
+    font: 500 19px var(--fonte);
+    color: var(--texto);
+    text-align: center;
+    background: rgba(255, 255, 255, .08);
+    border: 2px solid rgba(255, 255, 255, .18);
+    border-radius: 16px;
+    transition: border-color .25s, box-shadow .25s, background .25s;
+  }
+  .campo::placeholder { color: var(--suave); }
+  .campo:focus {
+    outline: none;
+    background: rgba(255, 255, 255, .13);
+    border-color: var(--rosa);
+    box-shadow: 0 0 0 5px rgba(255, 61, 129, .25), 0 0 28px rgba(255, 61, 129, .35);
+  }
+
+  .botao {
+    position: relative;
+    padding: 0 20px;
+    font: 700 17px var(--fonte);
+    color: var(--noite);
+    background: linear-gradient(135deg, var(--rosa), var(--pessego));
+    border: 0;
+    border-radius: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 6px 0 #a3194f, 0 10px 24px rgba(255, 61, 129, .4);
+    transition: transform .12s, box-shadow .12s, filter .2s;
+  }
+  .botao:hover { filter: brightness(1.1); }
+  .botao:active {
+    transform: translateY(5px);
+    box-shadow: 0 1px 0 #a3194f, 0 4px 12px rgba(255, 61, 129, .4);
+  }
+
+  .dica {
+    margin: 18px 0 10px;
+    font-size: 14px;
+    color: var(--suave);
+  }
+
+  .chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .chip {
+    position: relative;
+    padding: 13px 8px;
+    font: 600 16px var(--fonte);
+    color: var(--texto);
+    background: rgba(255, 255, 255, .07);
+    border: 2px solid var(--c);
+    border-radius: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform .2s cubic-bezier(.3, 1.6, .5, 1), background .2s, box-shadow .2s;
+  }
+  .chip:hover {
+    transform: translateY(-3px) rotate(-1.5deg);
+    background: color-mix(in srgb, var(--c) 22%, transparent);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--c) 40%, transparent);
+  }
+  .chip:active { transform: scale(.93); }
+  .chip[data-r="sim"]        { --c: var(--rosa); }
+  .chip[data-r="não"]        { --c: var(--menta); }
+  .chip[data-r="por quê?"]   { --c: var(--lilas); }
+  .chip[data-r="não entendi"] { --c: var(--pessego); }
+
+  .mensagem {
+    min-height: 3.2em;
+    margin-top: 18px;
+    font: 600 19px/1.3 var(--fonte);
+    text-wrap: balance;
+  }
+  .mensagem.certo { color: var(--menta); }
+  .mensagem.errado { color: #ff7a96; }
+  .mensagem.aviso { color: var(--lilas); }
+
+  /* ================= RESUMO ================= */
+  .lista {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 16px;
+    text-align: left;
+  }
+  .lista li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    font-size: 18px;
+    background: rgba(255, 255, 255, .07);
+    border-radius: 14px;
+  }
+  .lista .certo { color: var(--menta); font-weight: 600; }
+  .lista .errado { color: #ff7a96; font-weight: 600; }
+  .lista .vazio { color: var(--suave); }
+
+  .placar {
+    margin-bottom: 4px;
+    font: 700 28px var(--fonte);
+  }
+  .veredito {
+    min-height: 1.5em;
+    margin-bottom: 14px;
+    color: var(--suave);
+  }
+  .botao.largo { padding: 15px 30px; }
+  .acoes {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .botao.suave {
+    color: var(--texto);
+    background: rgba(255, 255, 255, .1);
+    border: 2px solid rgba(255, 255, 255, .25);
+    box-shadow: none;
+  }
+  .botao.suave:active { transform: scale(.95); box-shadow: none; }
+
+  /* ================= EFEITOS ================= */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .4);
+    transform: scale(0);
+    animation: onda .6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes onda { to { transform: scale(1); opacity: 0; } }
+
+  #particulas {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .flash {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ================= CENA FINAL (CINEMA) ================= */
+  .cena {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: #000;
+    color: #f3ecff;
+    font-family: var(--cine);
+  }
+  .cena[hidden] { display: none; }
+
+  .palco {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  .palco::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, .88) 100%);
+    pointer-events: none;
+  }
+
+  .quadrado {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    width: min(46vw, 210px);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: linear-gradient(145deg, #6b3fc2, #3a1d76);
+    box-shadow: 0 0 90px 12px rgba(122, 70, 220, .45), inset 0 0 40px rgba(255, 255, 255, .08);
+    animation: respirar 4.5s ease-in-out infinite;
+  }
+  @keyframes respirar {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 80px 8px rgba(122, 70, 220, .35), inset 0 0 40px rgba(255, 255, 255, .06); }
+    50%      { transform: scale(1.06); box-shadow: 0 0 120px 20px rgba(150, 90, 255, .55), inset 0 0 50px rgba(255, 255, 255, .1); }
+  }
+
+  .bolinha {
+    position: absolute;
+    bottom: -24px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200, 165, 255, .95), rgba(120, 70, 220, 0) 70%);
+    animation: subirBolinha linear infinite;
+  }
+  @keyframes subirBolinha {
+    0%   { transform: translate(0, 0); opacity: 0; }
+    10%  { opacity: 1; }
+    50%  { transform: translate(14px, -60vh); }
+    90%  { opacity: 1; }
+    100% { transform: translate(-10px, -118vh); opacity: 0; }
+  }
+
+  .barra {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 11vh;
+    background: #000;
+    z-index: 3;
+  }
+  .barra.cima  { top: 0;    transform: translateY(-100%); }
+  .barra.baixo { bottom: 0; transform: translateY(100%); }
+
+  .texto {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 0 24px;
+    text-align: center;
+    letter-spacing: .04em;
+  }
+  .t1 {
+    top: 68%;
+    font-size: clamp(23px, 6.4vw, 32px);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .t2 {
+    top: 50%;
+    translate: 0 -50%;
+  }
+  .linha-a {
+    margin-bottom: .6em;
+    font-size: clamp(21px, 5.8vw, 30px);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .palavra {
+    display: inline-block;
+    margin: 0 .14em;
+  }
+
+  .beta {
+    font-size: clamp(70px, 24vw, 140px);
+    font-weight: 700;
+    letter-spacing: .06em;
+    line-height: 1;
+    color: #fff;
+    opacity: 0;
+    text-shadow: 0 0 36px rgba(155, 100, 255, .7);
+  }
+  .beta.glitch { animation: glitch 3.4s steps(1) infinite; }
+  @keyframes glitch {
+    0%, 84%, 100% { text-shadow: 0 0 36px rgba(155, 100, 255, .7); translate: 0 0; }
+    86% { text-shadow: 5px 0 #ff3d81, -5px 0 #5cf2c0; translate: 4px 0; }
+    88% { text-shadow: -5px 0 #ff3d81, 5px 0 #5cf2c0; translate: -4px 1px; }
+    90% { text-shadow: 3px 0 #ff3d81, -3px 0 #5cf2c0; translate: 2px -1px; }
+  }
+
+  .beta-caixa {
+    position: relative;
+    display: inline-block;
+  }
+  .beta-fundo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: -1;
+    translate: -50% -50%;
+    font-size: clamp(120px, 42vw, 320px);
+    font-weight: 700;
+    letter-spacing: .06em;
+    line-height: 1;
+    white-space: nowrap;
+    color: #b79bff;
+    filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .beta-fundo.vivo { animation: pairar 8s ease-in-out infinite alternate; }
+  @keyframes pairar {
+    from { scale: 1; }
+    to   { scale: 1.1; }
+  }
+
+  .cena-flash {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .voltar {
+    position: absolute;
+    left: 50%;
+    bottom: 15vh;
+    z-index: 5;
+    translate: -50% 0;
+    padding: 12px 26px;
+    font: italic 400 20px var(--cine);
+    color: #cdbbf5;
+    background: none;
+    border: 1px solid rgba(205, 187, 245, .4);
+    border-radius: 999px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .voltar.visivel { pointer-events: auto; }
+
+  :focus-visible { outline: 3px solid var(--menta); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blob, .coracao span, .janela, .janela::before, .janela::after, .quadrado, .bolinha, .beta.glitch, .beta-fundo.vivo { animation: none; }
+    .fundo i { display: none; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="fundo" id="fundo" aria-hidden="true">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+</div>
+<div class="flash" id="flash"></div>
+<canvas id="particulas" aria-hidden="true"></canvas>
+
+<main class="janela" id="janela">
+  <nav class="abas" id="abas" role="tablist">
+    <span class="indicador" id="indicador"></span>
+  </nav>
+
+  <section class="painel" id="painel-pergunta">
+    <div class="coracao" id="coracao" aria-hidden="true"><span>💗</span></div>
+    <h1 id="pergunta"></h1>
+
+    <div class="linha">
+      <input class="campo" id="campo" type="text" maxlength="24"
+             placeholder="escreva aqui" autocomplete="off"
+             autocapitalize="off" spellcheck="false" aria-label="Sua resposta">
+      <button class="botao" id="enviar" type="button">Enviar</button>
+    </div>
+
+    <p class="dica">ou toque numa resposta rápida</p>
+    <div class="chips">
+      <button class="chip" type="button" data-r="sim">Sim 💘</button>
+      <button class="chip" type="button" data-r="não">Não 🙅</button>
+      <button class="chip" type="button" data-r="por quê?">Por quê? 🤔</button>
+      <button class="chip" type="button" data-r="não entendi">Não entendi 😵‍💫</button>
+    </div>
+
+    <p class="mensagem" id="mensagem" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="painel" id="painel-resumo" hidden>
+    <div class="coracao" aria-hidden="true"><span id="trofeu">🏆</span></div>
+    <h1>Resumo</h1>
+    <ul class="lista" id="lista"></ul>
+    <p class="placar" id="placar"></p>
+    <p class="veredito" id="veredito"></p>
+    <div class="acoes">
+      <button class="botao largo" id="continuar" type="button">Continuar</button>
+      <button class="botao largo suave" id="recomecar" type="button">Recomeçar</button>
+    </div>
+  </section>
+</main>
+
+<div class="cena" id="cena" hidden>
+  <div class="palco" id="palco"><div class="quadrado" id="quadrado"></div></div>
+  <div class="barra cima" id="barraCima"></div>
+  <div class="barra baixo" id="barraBaixo"></div>
+  <p class="texto t1" id="t1"></p>
+  <div class="texto t2" id="t2">
+    <p class="linha-a" id="linhaA"></p>
+    <div class="beta-caixa">
+      <span class="beta-fundo" id="betaFundo" aria-hidden="true">BETA</span>
+      <p class="beta" id="beta">BETA!</p>
+    </div>
+  </div>
+  <div class="cena-flash" id="cenaFlash"></div>
+  <button class="voltar" id="voltar" type="button">Voltar ao início</button>
+</div>
+
+<script>
+  // ================= DADOS =================
+  // ok: true (certo), false (errado) ou null (sem resposta)
+  const pessoas = [
+    { nome: "Vinicius", ok: null, msg: "", tipo: "", emoji: "💗" },
+    { nome: "Eduardo",  ok: null, msg: "", tipo: "", emoji: "💗" },
+  ];
+  let atual = 0; // 0 e 1 = pessoas, 2 = resumo
+  const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ================= ELEMENTOS =================
+  const $ = id => document.getElementById(id);
+  const elJanela = $("janela"), elAbas = $("abas"), elIndicador = $("indicador");
+  const elPainelPergunta = $("painel-pergunta"), elPainelResumo = $("painel-resumo");
+  const elCoracao = $("coracao"), elPergunta = $("pergunta"), elCampo = $("campo");
+  const elMensagem = $("mensagem"), elLista = $("lista"), elPlacar = $("placar");
+  const elVeredito = $("veredito"), elTrofeu = $("trofeu"), elFlash = $("flash");
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const sorteia = lista => lista[Math.floor(Math.random() * lista.length)];
+
+  // ================= RESPOSTAS =================
+  function normalizar(texto) {
+    return texto
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")   // tira acentos: "não" vira "nao"
+      .replace(/[^a-z0-9\s]/g, "")       // tira pontuação: "por quê?" vira "por que"
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function interpretar(texto) {
+    const t = normalizar(texto);
+    if (!t) return "vazio";
+    if (t.includes("entend")) return "naoentendi";
+    if (t.startsWith("por que") || t.startsWith("porque") || t === "pq") return "porque";
+    if (t === "sim") return "sim";
+    if (t === "nao") return "nao";
+    return "invalido";
+  }
+
+  // Só "sim" e "não" mudam o placar (ok). As outras só reagem.
+  const reacoes = {
+    sim: {
+      ok: false, tipo: "errado", emoji: "💔", efeito: "quebrar",
+      msg: () => "Mentira! Não é verdade.",
+    },
+    nao: {
+      ok: true, tipo: "certo", emoji: "😎", efeito: "confete",
+      msg: () => "Isso mesmo, está certo.",
+    },
+    porque: {
+      tipo: "aviso", emoji: "🤔", efeito: "interrogacao",
+      msg: () => sorteia([
+        "Boa pergunta! Mas aqui só vale sim ou não.",
+        "Ué, pergunta pra ela! Aqui você responde sim ou não.",
+        "Os motivos são secretos. Responda: sim ou não?",
+      ]),
+    },
+    naoentendi: {
+      tipo: "aviso", emoji: "😵‍💫", efeito: "tontura",
+      msg: p => sorteia([
+        `Calma! A pergunta é: a Heloisa gosta do ${p.nome}? Responda sim ou não.`,
+        `Resumindo: ela gosta do ${p.nome} ou não?`,
+      ]),
+    },
+    invalido: {
+      tipo: "aviso", emoji: "🙃", efeito: "confuso",
+      msg: () => "Use sim, não, por quê? ou não entendi.",
+    },
+    vazio: {
+      tipo: "aviso", emoji: "👀", efeito: "confuso",
+      msg: () => "Escreva uma resposta ou toque numa das opções.",
+    },
+  };
+
+  function enviar(texto) {
+    const p = pessoas[atual];
+    const r = reacoes[interpretar(texto)];
+
+    if (r.ok !== undefined) p.ok = r.ok;
+    p.emoji = r.emoji;
+    p.msg = r.msg(p);
+    p.tipo = r.tipo;
+
+    elCampo.value = "";
+    mudarCoracao(r.emoji);
+    mostrarMensagem(p.msg, p.tipo, true);
+    efeitos[r.efeito]();
+    atualizarAbas();
+  }
+
+  // ================= PARTÍCULAS (canvas) =================
+  const cv = $("particulas");
+  const ctx = cv.getContext("2d");
+  let particulas = [];
+  let rodando = false;
+
+  function ajustarCanvas() {
+    const d = window.devicePixelRatio || 1;
+    cv.width = innerWidth * d;
+    cv.height = innerHeight * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+  addEventListener("resize", ajustarCanvas);
+  ajustarCanvas();
+
+  function explodir(x, y, o = {}) {
+    if (reduz) return;
+    const {
+      emojis = ["✨"], cores = null, qtd = 12, vel = 6, grav = 0.18,
+      subir = false, tam = [16, 30], vida = [50, 90],
+    } = o;
+
+    for (let i = 0; i < qtd; i++) {
+      const ang = subir ? rand(-Math.PI * 0.95, -Math.PI * 0.05) : rand(0, Math.PI * 2);
+      const v = rand(vel * 0.4, vel);
+      const usaCor = cores && Math.random() < 0.6;
+      particulas.push({
+        x, y,
+        vx: Math.cos(ang) * v,
+        vy: Math.sin(ang) * v,
+        g: grav,
+        rot: rand(0, 6.28),
+        vr: rand(-0.25, 0.25),
+        tam: rand(tam[0], tam[1]),
+        vida: rand(vida[0], vida[1]),
+        emoji: usaCor ? null : sorteia(emojis),
+        cor: usaCor ? sorteia(cores) : null,
+      });
+    }
+    if (!rodando) {
+      rodando = true;
+      requestAnimationFrame(animarParticulas);
+    }
+  }
+
+  function animarParticulas() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    particulas = particulas.filter(p => p.vida > 0);
+
+    for (const p of particulas) {
+      p.vx *= 0.985;
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.vida--;
+
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, p.vida / 20);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      if (p.emoji) {
+        ctx.font = `${p.tam}px serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(p.emoji, 0, 0);
+      } else {
+        ctx.fillStyle = p.cor;
+        ctx.fillRect(-p.tam / 4, -p.tam / 6, p.tam / 2, p.tam / 3);
+      }
+      ctx.restore();
+    }
+
+    if (particulas.length) {
+      requestAnimationFrame(animarParticulas);
+    } else {
+      rodando = false;
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+    }
+  }
+
+  // ================= EFEITOS =================
+  const confeteCores = ["#ff3d81", "#ff9a62", "#5cf2c0", "#b69cff", "#ffe27a"];
+
+  function centro(el) {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  function flash(cor) {
+    if (reduz) return;
+    elFlash.style.background = `radial-gradient(circle at 50% 45%, ${cor}, transparent 65%)`;
+    elFlash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: "ease-out" });
+  }
+
+  function tremer() {
+    if (reduz) return;
+    elJanela.animate(
+      [
+        { transform: "translateX(0)" },
+        { transform: "translateX(-14px) rotate(-1deg)" },
+        { transform: "translateX(12px) rotate(1deg)" },
+        { transform: "translateX(-9px)" },
+        { transform: "translateX(6px)" },
+        { transform: "translateX(0)" },
+      ],
+      { duration: 480, easing: "ease-out" }
+    );
+  }
+
+  function vibrar(padrao) {
+    if (!reduz && navigator.vibrate) navigator.vibrate(padrao);
+  }
+
+  function mudarCoracao(emoji) {
+    elCoracao.firstElementChild.textContent = emoji;
+    if (reduz) return;
+    elCoracao.animate(
+      [
+        { transform: "scale(.3) rotate(-25deg)" },
+        { transform: "scale(1.35) rotate(10deg)" },
+        { transform: "scale(1) rotate(0)" },
+      ],
+      { duration: 550, easing: "cubic-bezier(.2, 1.6, .4, 1)" }
+    );
+  }
+
+  const efeitos = {
+    quebrar() {
+      const c = centro(elCoracao);
+      explodir(c.x, c.y, { emojis: ["💔", "🖤", "💥"], qtd: 24, vel: 10, grav: 0.26, tam: [20, 38] });
+      flash("rgba(255, 60, 90, .6)");
+      tremer();
+      vibrar([60, 40, 60]);
+    },
+    confete() {
+      const c = centro(elCoracao);
+      explodir(c.x, c.y, {
+        emojis: ["💖", "✨", "🎉", "💚"], cores: confeteCores,
+        qtd: 50, vel: 13, grav: 0.22, subir: true, tam: [14, 30], vida: [70, 120],
+      });
+      flash("rgba(92, 242, 192, .5)");
+      vibrar(40);
+    },
+    interrogacao() {
+      const c = centro(elCoracao);
+      explodir(c.x, c.y - 20, { emojis: ["❓", "💭", "✨"], qtd: 10, vel: 4, grav: -0.04, subir: true, vida: [70, 110] });
+    },
+    tontura() {
+      const c = centro(elCoracao);
+      explodir(c.x, c.y, { emojis: ["💫", "⭐", "😵‍💫"], qtd: 16, vel: 6, grav: 0.04, vida: [60, 100] });
+      flash("rgba(255, 154, 98, .4)");
+    },
+    confuso() {
+      const c = centro(elCoracao);
+      explodir(c.x, c.y, { emojis: ["🙃", "❔"], qtd: 6, vel: 4, grav: 0.1 });
+    },
+    vitoria() {
+      explodir(innerWidth * 0.15, innerHeight * 0.85, {
+        emojis: ["🎉", "💖", "✨"], cores: confeteCores,
+        qtd: 40, vel: 16, grav: 0.24, subir: true, vida: [80, 130],
+      });
+      explodir(innerWidth * 0.85, innerHeight * 0.85, {
+        emojis: ["🎉", "💖", "✨"], cores: confeteCores,
+        qtd: 40, vel: 16, grav: 0.24, subir: true, vida: [80, 130],
+      });
+      flash("rgba(255, 226, 122, .45)");
+      vibrar([40, 30, 40, 30, 80]);
+    },
+  };
+
+  // Todo botão: onda + faíscas saindo do ponto onde você tocou
+  document.addEventListener("pointerdown", e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+
+    const r = b.getBoundingClientRect();
+    const d = Math.max(r.width, r.height) * 2;
+    const onda = document.createElement("span");
+    onda.className = "ripple";
+    onda.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+    b.appendChild(onda);
+    onda.addEventListener("animationend", () => onda.remove());
+
+    explodir(e.clientX, e.clientY, {
+      emojis: ["✨", "💖", "⭐", "💗"], qtd: 8, vel: 4.5, grav: 0.12,
+      tam: [12, 20], vida: [30, 50],
+    });
+  });
+
+  // ================= TEXTO DIGITADO =================
+  let tokenDigitar = 0;
+
+  function mostrarMensagem(texto, tipo, animar) {
+    elMensagem.className = "mensagem " + tipo;
+    const t = ++tokenDigitar;
+    if (!animar || reduz) {
+      elMensagem.textContent = texto;
+      return;
+    }
+    const letras = Array.from(texto);
+    let i = 0;
+    elMensagem.textContent = "";
+    (function escrever() {
+      if (t !== tokenDigitar) return;
+      elMensagem.textContent = letras.slice(0, ++i).join("");
+      if (i < letras.length) setTimeout(escrever, 24);
+    })();
+  }
+
+  // ================= ABAS E TELAS =================
+  const botoesAbas = [];
+  [...pessoas.map(p => p.nome), "Resumo"].forEach((nome, i) => {
+    const b = document.createElement("button");
+    b.className = "aba";
+    b.type = "button";
+    b.setAttribute("role", "tab");
+    b.textContent = nome;
+    if (i < pessoas.length) {
+      const ponto = document.createElement("span");
+      ponto.className = "ponto";
+      b.appendChild(ponto);
+    }
+    b.addEventListener("click", () => irPara(i));
+    elAbas.appendChild(b);
+    botoesAbas.push(b);
+  });
+
+  function atualizarAbas() {
+    botoesAbas.forEach((b, i) => {
+      b.setAttribute("aria-selected", i === atual);
+      const ponto = b.querySelector(".ponto");
+      if (ponto) {
+        ponto.className = "ponto";
+        if (pessoas[i].ok === true) ponto.classList.add("certo");
+        if (pessoas[i].ok === false) ponto.classList.add("errado");
+      }
+    });
+    elIndicador.style.transform = `translateX(${atual * 100}%)`;
+  }
+
+  function irPara(i) {
+    if (i === atual) return;
+    const direcao = i > atual ? 1 : -1;
+    atual = i;
+    desenhar();
+
+    if (!reduz) {
+      const painel = atual === pessoas.length ? elPainelResumo : elPainelPergunta;
+      painel.animate(
+        [
+          { opacity: 0, transform: `translateX(${direcao * 36}px) scale(.96)` },
+          { opacity: 1, transform: "none" },
+        ],
+        { duration: 380, easing: "cubic-bezier(.2, 1.2, .4, 1)" }
+      );
+    }
+  }
+
+  function desenhar() {
+    atualizarAbas();
+    const noResumo = atual === pessoas.length;
+    elPainelPergunta.hidden = noResumo;
+    elPainelResumo.hidden = !noResumo;
+
+    if (noResumo) {
+      desenharResumo();
+    } else {
+      const p = pessoas[atual];
+      elPergunta.textContent = `A Heloisa gosta do ${p.nome}?`;
+      elCoracao.firstElementChild.textContent = p.emoji;
+      mostrarMensagem(p.msg, p.tipo, false);
+    }
+  }
+
+  function desenharResumo() {
+    elLista.innerHTML = "";
+    let acertos = 0;
+
+    pessoas.forEach(p => {
+      const li = document.createElement("li");
+      const nome = document.createElement("span");
+      const estado = document.createElement("span");
+      nome.textContent = p.nome;
+
+      if (p.ok === true)       { estado.textContent = "✅ certo";  estado.className = "certo"; acertos++; }
+      else if (p.ok === false) { estado.textContent = "❌ errado"; estado.className = "errado"; }
+      else                     { estado.textContent = "➖ sem resposta"; estado.className = "vazio"; }
+
+      li.append(nome, estado);
+      elLista.appendChild(li);
+    });
+
+    // contador que sobe até o resultado
+    const total = pessoas.length;
+    if (reduz) {
+      elPlacar.textContent = `Acertos: ${acertos} de ${total}`;
+    } else {
+      const inicio = performance.now();
+      (function contar(agora) {
+        const t = Math.min(1, (agora - inicio) / 700);
+        elPlacar.textContent = `Acertos: ${Math.round(acertos * t)} de ${total}`;
+        if (t < 1) requestAnimationFrame(contar);
+      })(inicio);
+    }
+
+    if (acertos === total) {
+      elTrofeu.textContent = "🏆";
+      elVeredito.textContent = "Tudo certo! Ela não gosta dos coitados.";
+      setTimeout(efeitos.vitoria, 300);
+    } else if (acertos === 0) {
+      elTrofeu.textContent = "🫥";
+      elVeredito.textContent = "Nenhum acerto ainda.";
+    } else {
+      elTrofeu.textContent = "🙂";
+      elVeredito.textContent = "Falta responder o outro.";
+    }
+  }
+
+  function recomecar() {
+    pessoas.forEach(p => { p.ok = null; p.msg = ""; p.tipo = ""; p.emoji = "💗"; });
+    atual = 0;
+    desenhar();
+  }
+
+  // ================= CENA FINAL (CINEMA) =================
+  const elCena = $("cena"), elPalco = $("palco"), elQuadrado = $("quadrado");
+  const elBarraCima = $("barraCima"), elBarraBaixo = $("barraBaixo");
+  const elT1 = $("t1"), elT2 = $("t2"), elLinhaA = $("linhaA");
+  const elBeta = $("beta"), elBetaFundo = $("betaFundo");
+  const elCenaFlash = $("cenaFlash"), elVoltar = $("voltar");
+  let emCena = false;
+
+  const espera = ms => new Promise(r => setTimeout(r, ms));
+  const T = ms => (reduz ? ms * 0.35 : ms);
+  const anim = (el, frames, o) => el.animate(frames, { fill: "forwards", ...o }).finished;
+
+  // --- som (opcional, baixinho): zumbido grave, silêncio, e uma batida no BETA ---
+  function iniciarSom() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const a = new AC();
+      const g = a.createGain();
+      g.gain.value = 0;
+      g.connect(a.destination);
+      [[55, 0.5], [82.4, 0.25], [110, 0.15]].forEach(([freq, vol]) => {
+        const o = a.createOscillator();
+        const og = a.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        og.gain.value = vol * 0.16;
+        o.connect(og).connect(g);
+        o.start();
+      });
+      g.gain.linearRampToValueAtTime(1, a.currentTime + 3);
+      const som = { a, g };
+      criarVento(som);
+      uivar(som, 2.5, 5.2, 310, 0.07);  // primeiro uivo, ao longe
+      uivar(som, 8.0, 5.8, 240, 0.06);  // segundo uivo, mais grave
+      return som;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // vento: ruído grave passando por um filtro que sobe e desce, com rajadas
+  function criarVento(som) {
+    const a = som.a;
+    const tamanho = a.sampleRate * 4;
+    const buffer = a.createBuffer(1, tamanho, a.sampleRate);
+    const dados = buffer.getChannelData(0);
+    let ultimo = 0;
+    for (let i = 0; i < tamanho; i++) {
+      ultimo = (ultimo + 0.02 * (Math.random() * 2 - 1)) / 1.02; // ruído "marrom", mais grave
+      dados[i] = ultimo * 3.5;
+    }
+
+    const fonte = a.createBufferSource();
+    fonte.buffer = buffer;
+    fonte.loop = true;
+
+    const filtro = a.createBiquadFilter();
+    filtro.type = "bandpass";
+    filtro.frequency.value = 450;
+    filtro.Q.value = 0.9;
+
+    const lfoFiltro = a.createOscillator();      // o "assobio" sobe e desce devagar
+    const lfoFiltroG = a.createGain();
+    lfoFiltro.frequency.value = 0.13;
+    lfoFiltroG.gain.value = 280;
+    lfoFiltro.connect(lfoFiltroG).connect(filtro.frequency);
+
+    const rajada = a.createGain();               // o volume também oscila: rajadas
+    rajada.gain.value = 0.55;
+    const lfoRajada = a.createOscillator();
+    const lfoRajadaG = a.createGain();
+    lfoRajada.frequency.value = 0.07;
+    lfoRajadaG.gain.value = 0.35;
+    lfoRajada.connect(lfoRajadaG).connect(rajada.gain);
+
+    fonte.connect(filtro).connect(rajada).connect(som.g);
+    fonte.start();
+    lfoFiltro.start();
+    lfoRajada.start();
+  }
+
+  // uivo: tom que sobe e desce com um tremido, bem baixinho e filtrado
+  function uivar(som, atraso, duracao, base, volume) {
+    const a = som.a;
+    const t = a.currentTime + atraso;
+
+    const filtro = a.createBiquadFilter();
+    filtro.type = "lowpass";
+    filtro.frequency.value = 900;
+
+    const envelope = a.createGain();
+    envelope.gain.setValueAtTime(0, t);
+    envelope.gain.linearRampToValueAtTime(volume, t + duracao * 0.35);
+    envelope.gain.linearRampToValueAtTime(0, t + duracao);
+    filtro.connect(envelope).connect(som.g);
+
+    const tremido = a.createOscillator();
+    const tremidoG = a.createGain();
+    tremido.frequency.value = 5.5;
+    tremidoG.gain.value = base * 0.02;
+    tremido.start(t);
+    tremido.stop(t + duracao + 0.1);
+
+    [0, 7].forEach(cents => {                    // dois tons quase iguais, soa mais "vivo"
+      const o = a.createOscillator();
+      o.type = "triangle";
+      o.detune.value = cents;
+      o.frequency.setValueAtTime(base * 0.8, t);
+      o.frequency.linearRampToValueAtTime(base * 1.5, t + duracao * 0.45);
+      o.frequency.linearRampToValueAtTime(base * 0.7, t + duracao);
+      tremido.connect(tremidoG).connect(o.frequency);
+      o.connect(filtro);
+      o.start(t);
+      o.stop(t + duracao + 0.1);
+    });
+  }
+
+  function apagarSom(som, segundos) {
+    if (!som) return;
+    som.g.gain.cancelScheduledValues(som.a.currentTime);
+    som.g.gain.setValueAtTime(som.g.gain.value, som.a.currentTime);
+    som.g.gain.linearRampToValueAtTime(0, som.a.currentTime + segundos);
+  }
+
+  function impacto(som) {
+    if (!som) return;
+    const a = som.a, t = a.currentTime;
+    const o = a.createOscillator();
+    const og = a.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(130, t);
+    o.frequency.exponentialRampToValueAtTime(28, t + 0.9);
+    og.gain.setValueAtTime(0.9, t);
+    og.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
+    o.connect(og).connect(a.destination);
+    o.start(t);
+    o.stop(t + 1.4);
+
+    const ruido = a.createBuffer(1, a.sampleRate * 0.3, a.sampleRate);
+    const dados = ruido.getChannelData(0);
+    for (let i = 0; i < dados.length; i++) dados[i] = (Math.random() * 2 - 1) * (1 - i / dados.length);
+    const fonte = a.createBufferSource();
+    const ng = a.createGain();
+    fonte.buffer = ruido;
+    ng.gain.value = 0.35;
+    fonte.connect(ng).connect(a.destination);
+    fonte.start(t);
+
+    setTimeout(() => a.close(), 3500);
+  }
+
+  // --- texto que aparece palavra por palavra, devagar ---
+  function revelar(el, texto, { passo = 400, dur = 1200 } = {}) {
+    el.textContent = "";
+    const animacoes = texto.split(" ").map((palavra, i) => {
+      const s = document.createElement("span");
+      s.className = "palavra";
+      s.textContent = palavra;
+      s.style.opacity = 0;
+      el.appendChild(s);
+      return s.animate(
+        [
+          { opacity: 0, filter: "blur(10px)", transform: "translateY(10px)" },
+          { opacity: 1, filter: "blur(0)", transform: "none" },
+        ],
+        { duration: T(dur), delay: T(i * passo), fill: "forwards", easing: "ease-out" }
+      ).finished;
+    });
+    return Promise.all(animacoes);
+  }
+
+  function criarBolinhas() {
+    elPalco.querySelectorAll(".bolinha").forEach(b => b.remove());
+    for (let i = 0; i < 42; i++) {
+      const b = document.createElement("span");
+      const t = rand(4, 16);
+      b.className = "bolinha";
+      b.style.cssText =
+        `left:${rand(0, 100)}%;width:${t}px;height:${t}px;` +
+        `animation-duration:${rand(6, 15)}s;animation-delay:${-rand(0, 15)}s;` +
+        `filter:blur(${t > 11 ? 1.5 : 0}px)`;
+      elPalco.appendChild(b);
+    }
+  }
+
+  function limparCena() {
+    [elCena, elPalco, elQuadrado, elT1, elT2, elLinhaA, elBeta, elBetaFundo, elBarraCima, elBarraBaixo, elCenaFlash, elVoltar]
+      .forEach(el => el.getAnimations().forEach(a => {
+        // só cancela as animações feitas por script, não as do CSS (respirar, glitch)
+        if (typeof CSSAnimation === "undefined" || !(a instanceof CSSAnimation)) a.cancel();
+      }));
+    elT1.textContent = "";
+    elLinhaA.textContent = "";
+    elBeta.classList.remove("glitch");
+    elBetaFundo.classList.remove("vivo");
+    elVoltar.classList.remove("visivel");
+    elPalco.querySelectorAll(".bolinha").forEach(b => b.remove());
+  }
+
+  async function cinema() {
+    if (emCena) return;
+    emCena = true;
+    limparCena();
+    const som = iniciarSom();
+
+    // 1. tudo fica preto
+    elCena.hidden = false;
+    await anim(elCena, [{ opacity: 0 }, { opacity: 1 }], { duration: T(1600), easing: "ease-in" });
+
+    // 2. barras de cinema descem e o cenário aparece: quadrado roxo + bolinhas subindo
+    anim(elBarraCima, [{ transform: "translateY(-100%)" }, { transform: "translateY(0)" }], { duration: T(2200), easing: "ease-out" });
+    anim(elBarraBaixo, [{ transform: "translateY(100%)" }, { transform: "translateY(0)" }], { duration: T(2200), easing: "ease-out" });
+    await espera(T(1500));
+
+    criarBolinhas();
+    anim(elPalco, [{ opacity: 0 }, { opacity: 1 }], { duration: T(2400), easing: "ease-out" });
+    anim(elQuadrado, [{ scale: ".7" }, { scale: "1" }], { duration: T(2800), easing: "ease-out" });
+    await espera(T(2800));
+
+    // 3. primeira frase
+    await revelar(elT1, "Você chegou até aqui, né?", { passo: 430, dur: 1300 });
+    await espera(T(2600));
+
+    // 4. as coisas somem
+    apagarSom(som, T(2.6)); // segundos
+    await Promise.all([
+      anim(elPalco, [{ opacity: 1 }, { opacity: 0 }], { duration: T(2800), easing: "ease-in" }),
+      anim(elQuadrado, [{ scale: "1", filter: "blur(0px)" }, { scale: ".15", filter: "blur(20px)" }], { duration: T(2800), easing: "ease-in" }),
+      anim(elT1, [{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(10px)" }], { duration: T(2000), easing: "ease-in" }),
+    ]);
+    elT1.textContent = "";
+
+    // 5. escuridão e silêncio
+    await espera(T(2600));
+
+    // 6. a frase final
+    await revelar(elLinhaA, "Mas no fim, nunca sobra nada pro", { passo: 480, dur: 1400 });
+    await espera(T(1900));
+
+    // 7. BETA!
+    anim(elBeta,
+      [
+        { opacity: 0, transform: "scale(2.8)", filter: "blur(16px)" },
+        { opacity: 1, transform: "scale(1)", filter: "blur(0)" },
+      ],
+      { duration: T(420), easing: "cubic-bezier(.1, .9, .2, 1)" }
+    );
+    await espera(T(300));
+    impacto(som);
+
+    // um BETA enorme e translúcido surge atrás, e a "câmera" se aproxima devagar
+    anim(elBetaFundo,
+      [
+        { opacity: 0, transform: "scale(.55)" },
+        { opacity: 0.15, transform: "scale(1)" },
+      ],
+      { duration: T(2200), easing: "cubic-bezier(.2, .8, .2, 1)" }
+    );
+    elBetaFundo.classList.add("vivo");
+    anim(elT2, [{ scale: "1" }, { scale: "1.09" }], { duration: T(10000), easing: "ease-out" });
+
+    if (!reduz) {
+      anim(elCenaFlash, [{ opacity: 0.9 }, { opacity: 0 }], { duration: 900, easing: "ease-out", fill: "none" });
+      anim(elCena,
+        [
+          { transform: "translate(0, 0)" },
+          { transform: "translate(-16px, 8px)" },
+          { transform: "translate(14px, -10px)" },
+          { transform: "translate(-10px, 6px)" },
+          { transform: "translate(6px, -3px)" },
+          { transform: "translate(0, 0)" },
+        ],
+        { duration: 650, easing: "ease-out", fill: "none" }
+      );
+      vibrar([120, 40, 200]);
+    }
+    elBeta.classList.add("glitch");
+
+    // 8. fim: aparece a opção de voltar
+    await espera(T(4200));
+    elVoltar.classList.add("visivel");
+    anim(elVoltar, [{ opacity: 0 }, { opacity: 1 }], { duration: T(1600) });
+  }
+
+  elVoltar.addEventListener("click", async () => {
+    elVoltar.classList.remove("visivel");
+    await anim(elCena, [{ opacity: 1 }, { opacity: 0 }], { duration: T(1200) });
+    elCena.hidden = true;
+    limparCena();
+    recomecar();
+    emCena = false;
+  });
+
+  $("continuar").addEventListener("click", cinema);
+
+  // ================= EVENTOS =================
+  $("enviar").addEventListener("click", () => enviar(elCampo.value));
+  $("recomecar").addEventListener("click", recomecar);
+  elCampo.addEventListener("keydown", e => {
+    if (e.key === "Enter") enviar(elCampo.value);
+  });
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => enviar(chip.dataset.r));
+  });
+
+  // corações flutuando no fundo
+  (function criarCoracoesDeFundo() {
+    const cores = ["#ff3d81", "#ff9a62", "#b69cff", "#5cf2c0"];
+    for (let i = 0; i < 16; i++) {
+      const h = document.createElement("i");
+      h.textContent = "♥";
+      h.style.cssText =
+        `left:${rand(0, 100)}%;font-size:${rand(12, 30)}px;color:${cores[i % cores.length]};` +
+        `opacity:${rand(0.12, 0.3)};animation-duration:${rand(14, 28)}s;animation-delay:${-rand(0, 28)}s`;
+      $("fundo").appendChild(h);
+    }
+  })();
+
+  desenhar();
+</script>
+</body>
+</html>
